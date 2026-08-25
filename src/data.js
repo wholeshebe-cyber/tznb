@@ -32,7 +32,7 @@ export const stats = [
 
 export const timeline = [
   {
-    period: "2026.02 — 至今",
+    period: "2024.09 — 2025.12",
     company: "上海英为家具有限公司",
     role: "淘宝运营",
     highlight: "品类 TOP10 店铺 · 月 GMV 峰值 ¥25 万 · 类目 TOP3",
@@ -44,7 +44,7 @@ export const timeline = [
     ],
   },
   {
-    period: "2024.09 — 2025.12",
+    period: "2026.02 — 至今",
     company: "江西佳音商贸有限公司",
     role: "TikTok 运营",
     highlight: "菲律宾 + 泰国 5 店 · 达人矩阵 · ROI 8-10",
