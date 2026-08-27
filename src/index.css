@@ -1369,6 +1369,44 @@ a.contact-row:hover {
   background: rgba(255, 255, 255, 0.03);
 }
 
+.admin-sort-list li {
+  cursor: grab;
+}
+
+.admin-sort-list li:active {
+  cursor: grabbing;
+}
+
+.admin-sort-list li.dragging {
+  opacity: 0.45;
+  border-color: rgba(253, 204, 42, 0.55);
+}
+
+.admin-drag-handle {
+  color: var(--dim);
+  font-size: 17px;
+  line-height: 1;
+  cursor: grab;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.admin-order-btns {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.admin-order-btns .admin-btn-add {
+  margin-top: 0;
+  padding: 5px 11px;
+  font-size: 13px;
+}
+
+.admin-order-save {
+  margin-bottom: 16px;
+}
+
 .admin-file-name {
   flex: 1;
   min-width: 0;

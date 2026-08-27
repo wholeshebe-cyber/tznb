@@ -17,12 +17,14 @@ const items = [
     type: "image",
     url,
     name: toName(path),
+    file: path.replace(/^\/src\/assets\/portfolio\//, ""),
     sortKey: path,
   })),
   ...Object.entries(videoModules).map(([path, url]) => ({
     type: "video",
     url,
     name: toName(path),
+    file: path.replace(/^\/src\/assets\/portfolio\//, ""),
     sortKey: path,
   })),
 ].sort((a, b) => a.sortKey.localeCompare(b.sortKey, undefined, { numeric: true }));

@@ -6,3 +6,4 @@ export const stats = content.stats;
 export const timeline = content.timeline;
 export const strengths = content.strengths;
 export const contact = content.contact;
+export const portfolioOrder = content.portfolioOrder || [];

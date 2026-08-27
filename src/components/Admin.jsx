@@ -150,15 +150,33 @@ export default function Admin() {
 function WorksTab({ onToast }) {
   const { repo, branch } = getSettings(adminConfig);
   const [files, setFiles] = useState(null);
+  const [order, setOrder] = useState([]);
+  const [initialOrder, setInitialOrder] = useState([]);
+  const [contentSha, setContentSha] = useState(null);
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
   const [busy, setBusy] = useState(false);
   const [deleting, setDeleting] = useState(null);
+  const [dragIndex, setDragIndex] = useState(null);
 
   const refresh = async () => {
     try {
       const items = await listDir(repo, branch, PORTFOLIO_PATH);
       setFiles(items);
+      const cfg = await getFile(repo, branch, CONTENT_PATH);
+      if (cfg) {
+        const parsed = JSON.parse(cfg.content);
+        const savedOrder = Array.isArray(parsed.portfolioOrder)
+          ? parsed.portfolioOrder
+          : [];
+        setOrder(savedOrder);
+        setInitialOrder(savedOrder);
+        setContentSha(cfg.sha);
+      } else {
+        setOrder([]);
+        setInitialOrder([]);
+        setContentSha(null);
+      }
     } catch (err) {
       setFiles([]);
       onToast(err.message, "err");
@@ -172,6 +190,70 @@ function WorksTab({ onToast }) {
 
   const isMedia = (name) => /\.(jpg|jpeg|png|webp|gif|mp4|webm|mov)$/i.test(name);
   const media = (files || []).filter((f) => f.type === "file" && isMedia(f.name));
+
+  const orderIndex = new Map(order.map((name, i) => [name, i]));
+  const sortedMedia = [...media].sort((a, b) => {
+    const ai = orderIndex.get(a.name);
+    const bi = orderIndex.get(b.name);
+    if (ai === undefined && bi === undefined) {
+      return a.name.localeCompare(b.name, undefined, { numeric: true });
+    }
+    if (ai === undefined) return 1;
+    if (bi === undefined) return -1;
+    return ai - bi;
+  });
+
+  const dirty = JSON.stringify(order) !== JSON.stringify(initialOrder);
+
+  const reorder = (from, to) => {
+    if (
+      from === to ||
+      from < 0 ||
+      to < 0 ||
+      from >= sortedMedia.length ||
+      to >= sortedMedia.length
+    ) {
+      return;
+    }
+    const names = sortedMedia.map((m) => m.name);
+    const arr = [...names];
+    const [moved] = arr.splice(from, 1);
+    arr.splice(to, 0, moved);
+    setOrder(arr);
+  };
+
+  const onDragStart = (i) => setDragIndex(i);
+  const onDragOver = (e) => e.preventDefault();
+  const onDrop = (i) => {
+    if (dragIndex !== null && dragIndex !== i) reorder(dragIndex, i);
+    setDragIndex(null);
+  };
+
+  const saveOrder = async () => {
+    setBusy(true);
+    try {
+      const cfg = await getFile(repo, branch, CONTENT_PATH);
+      const parsed = cfg
+        ? JSON.parse(cfg.content)
+        : JSON.parse(JSON.stringify(builtContent));
+      parsed.portfolioOrder = order;
+      await putFile(
+        repo,
+        branch,
+        CONTENT_PATH,
+        JSON.stringify(parsed, null, 2),
+        "调整作品展示顺序",
+        cfg?.sha
+      );
+      setInitialOrder(order);
+      setContentSha(cfg?.sha);
+      onToast("顺序已保存，网站约 1-3 分钟后自动更新");
+    } catch (err) {
+      onToast(err.message, "err");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const upload = async () => {
     if (!file) {
@@ -268,17 +350,55 @@ function WorksTab({ onToast }) {
       </section>
 
       <section className="admin-card">
-        <h2>已有作品（{media.length}）</h2>
+        <h2>已有作品（{sortedMedia.length}）</h2>
+        <p className="admin-hint">
+          按住手柄拖动调整顺序，或用 ↑ / ↓ 按钮；调整后点「保存顺序」。
+        </p>
+        {dirty && (
+          <div className="admin-order-save">
+            <button className="btn btn-accent" onClick={saveOrder} disabled={busy}>
+              {busy ? "保存中…" : "保存当前顺序"}
+            </button>
+          </div>
+        )}
         {files === null ? (
           <p className="admin-hint">加载中…</p>
-        ) : media.length === 0 ? (
+        ) : sortedMedia.length === 0 ? (
           <p className="admin-hint">还没有作品，上传一个吧。</p>
         ) : (
-          <ul className="admin-file-list">
-            {media.map((item) => (
-              <li key={item.path}>
+          <ul className="admin-file-list admin-sort-list">
+            {sortedMedia.map((item, i) => (
+              <li
+                key={item.path}
+                draggable
+                onDragStart={() => onDragStart(i)}
+                onDragOver={onDragOver}
+                onDrop={() => onDrop(i)}
+                className={dragIndex === i ? "dragging" : ""}
+              >
+                <span className="admin-drag-handle" title="拖动排序">
+                  ⠿
+                </span>
                 <span className="admin-file-name">{item.name}</span>
                 <span className="admin-file-size">{formatSize(item.size)}</span>
+                <span className="admin-order-btns">
+                  <button
+                    className="admin-btn-add"
+                    onClick={() => reorder(i, i - 1)}
+                    disabled={i === 0 || busy}
+                    title="上移"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    className="admin-btn-add"
+                    onClick={() => reorder(i, i + 1)}
+                    disabled={i === sortedMedia.length - 1 || busy}
+                    title="下移"
+                  >
+                    ↓
+                  </button>
+                </span>
                 <button
                   className="admin-btn-danger"
                   onClick={() => remove(item)}

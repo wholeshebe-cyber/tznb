@@ -1,8 +1,21 @@
 import { portfolioMedia } from "../portfolioMedia.js";
+import { portfolioOrder } from "../data.js";
 import Reveal from "./Reveal.jsx";
 import SectionHead from "./SectionHead.jsx";
 
 export default function Portfolio() {
+  const orderMap = new Map(portfolioOrder.map((name, i) => [name, i]));
+  const media = [...portfolioMedia].sort((a, b) => {
+    const ai = orderMap.get(a.file);
+    const bi = orderMap.get(b.file);
+    if (ai === undefined && bi === undefined) {
+      return a.sortKey.localeCompare(b.sortKey, undefined, { numeric: true });
+    }
+    if (ai === undefined) return 1;
+    if (bi === undefined) return -1;
+    return ai - bi;
+  });
+
   return (
     <section id="portfolio" className="section portfolio">
       <div className="container">
@@ -15,7 +28,7 @@ export default function Portfolio() {
           />
         </Reveal>
 
-        {portfolioMedia.length === 0 ? (
+        {media.length === 0 ? (
           <div className="card portfolio-empty">
             <p>作品集还是空的</p>
             <span className="mono">
@@ -24,7 +37,7 @@ export default function Portfolio() {
           </div>
         ) : (
           <div className="portfolio-grid">
-            {portfolioMedia.map((item, i) => (
+            {media.map((item, i) => (
               <Reveal key={item.url} delay={(i % 3) * 80} className="portfolio-item-wrap">
                 <figure className="card portfolio-card">
                   {item.type === "video" ? (
