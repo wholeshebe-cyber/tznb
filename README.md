@@ -21,6 +21,23 @@ npm run dev
 
 推送代码到 GitHub 后，GitHub Actions 会自动重新构建并发布，无需手动操作。
 
+## 网页后台管理（上传作品 + 编辑内容）
+
+网站右上角有「管理」入口，不需要改代码就能发布作品和修改内容：
+
+1. 打开网站，点击右上角「管理」。
+2. 输入管理密码（默认 `tznb2026`，首次登录后请到「设置」里修改）。
+3. 在「设置」里填入 GitHub 密钥（Token）：
+   - GitHub → Settings → Developer settings → Fine-grained personal access tokens
+   - Repository access 只选择 `wholeshebe-cyber/tznb`
+   - Permissions → Contents 设为 **Read and write**
+   - 生成后粘贴到后台「设置」→「保存并验证」
+4. 「作品管理」可以上传图片/视频（自动进入作品集）、删除旧作品；
+   「内容编辑」可以改个人介绍、数据指标、工作经历、核心优势、联系文案。
+5. 保存后自动提交到 GitHub，网站约 1-3 分钟后自动更新。
+
+注意：GitHub 密钥只保存在浏览器本地；如果怀疑泄露，请到 GitHub 立即撤销。
+
 ## 发布到 GitHub Pages
 
 1. 在 GitHub 新建一个**公开**仓库（Pages 免费版要求公开仓库）。

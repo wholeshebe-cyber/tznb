@@ -1,6 +1,7 @@
 node_modules
 dist
 qa-shots
+qa/
 resume-extract
 *.log
 .DS_Store

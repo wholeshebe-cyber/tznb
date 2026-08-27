@@ -25,6 +25,9 @@ export default function Nav() {
             </a>
           ))}
         </nav>
+        <a className="admin-entry" href="#admin" aria-label="网站管理后台">
+          管理
+        </a>
         <a className="btn btn-accent nav-cta" href="#contact">
           联系我
         </a>
