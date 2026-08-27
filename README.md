@@ -26,7 +26,7 @@ npm run dev
 网站右上角有「管理」入口，不需要改代码就能发布作品和修改内容：
 
 1. 打开网站，点击右上角「管理」。
-2. 输入管理密码（默认 `tznb2026`，首次登录后请到「设置」里修改）。
+2. 输入管理密码。
 3. 在「设置」里填入 GitHub 密钥（Token）：
    - GitHub → Settings → Developer settings → Fine-grained personal access tokens
    - Repository access 只选择 `wholeshebe-cyber/tznb`
