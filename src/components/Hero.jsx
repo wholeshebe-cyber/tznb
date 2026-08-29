@@ -53,7 +53,7 @@ export default function Hero() {
       <div className="hero-foot">
         <span className="mono">SCROLL</span>
         <span className="hero-foot-line" />
-        <span className="mono">01 / 05</span>
+        <span className="mono">01 / 06</span>
       </div>
     </section>
   );

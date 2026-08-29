@@ -24,6 +24,7 @@ import {
 } from "../admin.js";
 
 const PORTFOLIO_PATH = "src/assets/portfolio";
+const MINIPROGRAM_PATH = "src/assets/miniprogram";
 const CONTENT_PATH = "src/content.json";
 const CONFIG_PATH = "src/admin-config.json";
 
@@ -115,6 +116,12 @@ export default function Admin() {
           作品管理
         </button>
         <button
+          className={tab === "miniprogram" ? "active" : ""}
+          onClick={() => setTab("miniprogram")}
+        >
+          小程序管理
+        </button>
+        <button
           className={tab === "content" ? "active" : ""}
           onClick={() => setTab("content")}
         >
@@ -134,7 +141,31 @@ export default function Admin() {
             还没有配置 GitHub 密钥，请在「设置」里填入后再上传/编辑。
           </div>
         )}
-        {tab === "works" && <WorksTab onToast={showToast} />}
+        {tab === "works" && (
+          <MediaManager
+            folder={PORTFOLIO_PATH}
+            orderKey="portfolioOrder"
+            label="作品"
+            accept="image/*,video/mp4,video/webm,video/quicktime"
+            namePlaceholder="作品名（可选，留空用文件名）"
+            uploadText="上传作品"
+            hint="支持图片（jpg / png / webp / gif）和视频（mp4 / webm / mov），上传后自动展示在作品集。"
+            withVideo
+            onToast={showToast}
+          />
+        )}
+        {tab === "miniprogram" && (
+          <MediaManager
+            folder={MINIPROGRAM_PATH}
+            orderKey="miniprogramOrder"
+            label="小程序设计图"
+            accept="image/*"
+            namePlaceholder="图片名（可选，留空用文件名）"
+            uploadText="上传图片"
+            hint="支持图片（jpg / png / webp / gif），上传后自动展示在「个人小程序设计」区块。"
+            onToast={showToast}
+          />
+        )}
         {tab === "content" && <ContentTab onToast={showToast} />}
         {tab === "settings" && <SettingsTab onToast={showToast} />}
       </main>
@@ -147,7 +178,17 @@ export default function Admin() {
 }
 
 /* ---------- 作品管理 ---------- */
-function WorksTab({ onToast }) {
+function MediaManager({
+  folder,
+  orderKey,
+  label,
+  accept,
+  namePlaceholder,
+  uploadText,
+  hint,
+  withVideo,
+  onToast,
+}) {
   const { repo, branch } = getSettings(adminConfig);
   const [files, setFiles] = useState(null);
   const [order, setOrder] = useState([]);
@@ -161,13 +202,13 @@ function WorksTab({ onToast }) {
 
   const refresh = async () => {
     try {
-      const items = await listDir(repo, branch, PORTFOLIO_PATH);
+      const items = await listDir(repo, branch, folder);
       setFiles(items);
       const cfg = await getFile(repo, branch, CONTENT_PATH);
       if (cfg) {
         const parsed = JSON.parse(cfg.content);
-        const savedOrder = Array.isArray(parsed.portfolioOrder)
-          ? parsed.portfolioOrder
+        const savedOrder = Array.isArray(parsed[orderKey])
+          ? parsed[orderKey]
           : [];
         setOrder(savedOrder);
         setInitialOrder(savedOrder);
@@ -188,7 +229,10 @@ function WorksTab({ onToast }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const isMedia = (name) => /\.(jpg|jpeg|png|webp|gif|mp4|webm|mov)$/i.test(name);
+  const isMedia = (name) =>
+    withVideo
+      ? /\.(jpg|jpeg|png|webp|gif|mp4|webm|mov)$/i.test(name)
+      : /\.(jpg|jpeg|png|webp|gif)$/i.test(name);
   const media = (files || []).filter((f) => f.type === "file" && isMedia(f.name));
 
   const orderIndex = new Map(order.map((name, i) => [name, i]));
@@ -236,13 +280,13 @@ function WorksTab({ onToast }) {
       const parsed = cfg
         ? JSON.parse(cfg.content)
         : JSON.parse(JSON.stringify(builtContent));
-      parsed.portfolioOrder = order;
+      parsed[orderKey] = order;
       await putFile(
         repo,
         branch,
         CONTENT_PATH,
         JSON.stringify(parsed, null, 2),
-        "调整作品展示顺序",
+        `调整${label}展示顺序`,
         cfg?.sha
       );
       setInitialOrder(order);
@@ -257,7 +301,7 @@ function WorksTab({ onToast }) {
 
   const upload = async () => {
     if (!file) {
-      onToast("请先选择要上传的图片或视频", "err");
+      onToast(withVideo ? "请先选择要上传的图片或视频" : "请先选择要上传的图片", "err");
       return;
     }
     if (file.size > 90 * 1024 * 1024) {
@@ -265,7 +309,7 @@ function WorksTab({ onToast }) {
       return;
     }
     const name = sanitizeFileName(title || file.name);
-    const path = `${PORTFOLIO_PATH}/${name}`;
+    const path = `${folder}/${name}`;
     setBusy(true);
     try {
       const existing = await getFile(repo, branch, path);
@@ -279,7 +323,7 @@ function WorksTab({ onToast }) {
         branch,
         path,
         base64,
-        `上传作品：${name}`,
+        `上传${label}：${name}`,
         existing?.sha
       );
       onToast(`已提交「${name}」，网站约 1-3 分钟后自动更新`);
@@ -304,7 +348,7 @@ function WorksTab({ onToast }) {
         branch,
         item.path,
         item.sha,
-        `删除作品：${item.name}`
+        `删除${label}：${item.name}`
       );
       onToast(`已删除「${item.name}」，网站约 1-3 分钟后自动更新`);
       refresh();
@@ -318,28 +362,26 @@ function WorksTab({ onToast }) {
   return (
     <div className="admin-panel">
       <section className="admin-card">
-        <h2>上传新作品</h2>
-        <p className="admin-hint">
-          支持图片（jpg / png / webp / gif）和视频（mp4 / webm / mov），上传后自动展示在作品集。
-        </p>
+        <h2>上传新{label}</h2>
+        <p className="admin-hint">{hint}</p>
         <div className="admin-upload">
           <input
             type="file"
-            accept="image/*,video/mp4,video/webm,video/quicktime"
+            accept={accept}
             onChange={(e) => setFile(e.target.files?.[0] || null)}
           />
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="作品名（可选，留空用文件名）"
+            placeholder={namePlaceholder}
           />
           <button
             className="btn btn-accent"
             onClick={upload}
             disabled={busy}
           >
-            {busy ? "上传中…" : "上传作品"}
+            {busy ? "上传中…" : uploadText}
           </button>
         </div>
         {file && (
@@ -350,7 +392,7 @@ function WorksTab({ onToast }) {
       </section>
 
       <section className="admin-card">
-        <h2>已有作品（{sortedMedia.length}）</h2>
+        <h2>已有{label}（{sortedMedia.length}）</h2>
         <p className="admin-hint">
           按住手柄拖动调整顺序，或用 ↑ / ↓ 按钮；调整后点「保存顺序」。
         </p>
@@ -364,7 +406,7 @@ function WorksTab({ onToast }) {
         {files === null ? (
           <p className="admin-hint">加载中…</p>
         ) : sortedMedia.length === 0 ? (
-          <p className="admin-hint">还没有作品，上传一个吧。</p>
+          <p className="admin-hint">还没有{label}，上传一个吧。</p>
         ) : (
           <ul className="admin-file-list admin-sort-list">
             {sortedMedia.map((item, i) => (

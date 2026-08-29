@@ -1,25 +1,11 @@
 {
   "navLinks": [
-    {
-      "label": "首页",
-      "href": "#home"
-    },
-    {
-      "label": "个人经历",
-      "href": "#about"
-    },
-    {
-      "label": "作品集",
-      "href": "#portfolio"
-    },
-    {
-      "label": "核心优势",
-      "href": "#strengths"
-    },
-    {
-      "label": "联系我",
-      "href": "#contact"
-    }
+    { "label": "首页", "href": "#home" },
+    { "label": "个人经历", "href": "#about" },
+    { "label": "作品集", "href": "#portfolio" },
+    { "label": "小程序设计", "href": "#miniprogram" },
+    { "label": "核心优势", "href": "#strengths" },
+    { "label": "联系我", "href": "#contact" }
   ],
   "profile": {
     "name": "童政",
@@ -38,26 +24,10 @@
     ]
   },
   "stats": [
-    {
-      "value": "5",
-      "unit": "个",
-      "label": "TikTok 店铺全链路运营"
-    },
-    {
-      "value": "10w+",
-      "unit": "",
-      "label": "单店月 GMV（菲律宾站）"
-    },
-    {
-      "value": "8–10",
-      "unit": "",
-      "label": "广告投放 ROI"
-    },
-    {
-      "value": "TOP3",
-      "unit": "",
-      "label": "操盘单品类目排名"
-    }
+    { "value": "5", "unit": "个", "label": "TikTok 店铺全链路运营" },
+    { "value": "10w+", "unit": "", "label": "单店月 GMV（菲律宾站）" },
+    { "value": "8–10", "unit": "", "label": "广告投放 ROI" },
+    { "value": "TOP3", "unit": "", "label": "操盘单品类目排名" }
   ],
   "timeline": [
     {
@@ -128,5 +98,6 @@
     "MiniMax_H3_00055_.mp4",
     "MiniMax_H3_00063_.mp4",
     "MiniMax_H3_00088_.mp4"
-  ]
+  ],
+  "miniprogramOrder": []
 }

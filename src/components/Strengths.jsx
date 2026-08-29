@@ -67,7 +67,7 @@ export default function Strengths() {
       <div className="container">
         <Reveal>
           <SectionHead
-            index="03"
+            index="04"
             title="核心优势"
             en="STRENGTHS"
             desc="不是堆砌标签，而是能直接转化为业务结果的能力组合。"

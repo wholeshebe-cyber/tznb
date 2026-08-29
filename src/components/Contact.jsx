@@ -13,7 +13,7 @@ export default function Contact() {
         <Reveal>
           <p className="contact-eyebrow mono">
             <span className="dot" />
-            04 / 联系我 — OPEN FOR OPPORTUNITY
+            05 / 联系我 — OPEN FOR OPPORTUNITY
           </p>
           <h2 className="contact-title">{contact.headline}</h2>
           <p className="contact-sub">{contact.subline}</p>
